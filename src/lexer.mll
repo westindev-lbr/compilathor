@@ -18,6 +18,7 @@ rule token = parse
 | ";"             { Lsc }
 | "="             { Leq }
 | "var"           { Lvar }
+| "+"             { Ladd }
 | num+ as n       { Lint (int_of_string n) }
 | ident as id     { Lident (id)}
 | _ as c          { raise (Error c) }

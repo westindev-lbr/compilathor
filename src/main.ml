@@ -13,6 +13,7 @@ let () =
       Printf.eprintf "Usage: %s <file>\n" Sys.argv.(0) ;
       exit 1
     end;
+    
   let f = open_in Sys.argv.(1) in
   (* buffer de lexing en se rappelent de là ou on est *)
   let buf = Lexing.from_channel f in

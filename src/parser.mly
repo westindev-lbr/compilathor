@@ -8,6 +8,7 @@
 %token <bool> Lbool
 %token <string> Lident
 %token Lsc Lend Lvar Leq
+%token Ladd
 
 %start prog
 
@@ -16,7 +17,7 @@
 
 %%
 
-/* un pro c'est une expr et la fin  */
+/* un prog c'est une expr et la fin  */
 prog:
 /* | e = expr; Lend { e } */ // plus necessaire
 /* | e = expr ; Lsc ; b = prog { e :: b} */
@@ -38,7 +39,8 @@ instr:
       ; expr = e ; pos = $startpos($3)}
     ]
   }
-  | id = Lident; Leq; e = expr{
+  | id = Lident; Leq; e = expr
+  {
     [Assign { var = id
       ; expr = e 
       ; pos = $startpos($2)
@@ -47,13 +49,22 @@ instr:
   }
 
 expr:
-| n = Lint {
-  Int { value = n ; pos = $startpos(n) }
-}
-| b = Lbool {
-  Bool { value = b ; pos = $startpos(b)} 
-  }
-
-| v = Lident 
-{ Var { name = v ; pos = $startpos(v)}}
-;
+  | n = Lint 
+    {
+      Int { value = n ; pos = $startpos(n) }
+    }
+  | b = Lbool 
+    {
+      Bool { value = b ; pos = $startpos(b)} 
+    }
+  | v = Lident 
+    { 
+      Var { name = v ; pos = $startpos(v)}
+    }
+  | a = expr; Ladd ; b = expr
+    {
+      Call { func = "_add"
+      ; args = [ a ; b ]
+      ; pos = $startpos($2)}
+    }
+  ;

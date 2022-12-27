@@ -11,9 +11,16 @@ type cinfo = {
 
 let rec compile_expr expr env =
   match expr with
-  | Int n  -> [ Li (V0, n) ]
-  | Bool b -> [Li (V0, if b then 1 else 0)] 
-  | Var v -> [Lw (V0, Env.find v env)] 
+  | Int n   -> [Li (V0, n) ]
+  | Bool b  -> [Li (V0, if b then 1 else 0)] 
+  | Var v   -> [Lw (V0, Env.find v env)]
+  | Call (f, args) ->
+    let cargs = List.map (fun arg -> 
+        compile_expr arg env 
+        @ [ Addi (SP, SP, -4)
+          ; Sw (V0, Mem (SP, 0))] ) args in
+    List.flatten cargs
+    @ [ Jal f ; Addi (SP, SP, 4 * (List.length args)) ]
 
 let compile_instr instr info = 
   match instr with 
@@ -21,13 +28,13 @@ let compile_instr instr info =
     {
       info with 
       fpo = info.fpo -4 (* FP rempli vers le bas sur 1024 de memoire 0 == 1024 et prochaine valeur stoké a -4 donc 1020 *)
-      ; env = Env.add v (Mem (FP, info.fpo)) info.env
+    ; env = Env.add v (Mem (FP, info.fpo)) info.env
     }
   | Assign (v,e) -> 
     { info with 
-    asm = info.asm 
-    @ compile_expr e info.env
-     @ [ Sw (V0, Env.find v info.env)]
+      asm = info.asm 
+            @ compile_expr e info.env
+            @ [ Sw (V0, Env.find v info.env)]
     }
 
 
@@ -41,13 +48,14 @@ let rec compile_block block info =
 let compile ir =
   let info = compile_block ir 
       {
-        asm = Baselib.builtins
+        asm = []
       ; env = Env.empty
       ; fpo = 0
       }
   in
-  { text =[ 
-        Move (FP, SP) 
-      ;Addi (SP, SP, info.fpo )] 
-      @ info.asm
+  { text = 
+      [Move (FP, SP) 
+      ;Addi (SP, SP, info.fpo )
+      ;Sw (RA, Mem( SP, 0))] (* Sauvegarde de $ra  *)
+      @ info.asm @ Baselib.builtins
   ; data = [] }

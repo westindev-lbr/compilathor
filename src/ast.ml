@@ -1,4 +1,5 @@
 module Syntax = struct
+  type ident = string
   type expr =
     | Int of { value: int
              ; pos: Lexing.position }
@@ -6,6 +7,9 @@ module Syntax = struct
               ; pos: Lexing.position }  
     | Var of { name: string
               ; pos: Lexing.position }  
+    | Call of { func : ident
+              ; args: expr list
+              ; pos: Lexing.position }
 
   type instr = 
     | DeclVar of { name: string ; pos: Lexing.position}
@@ -18,10 +22,12 @@ module Syntax = struct
 end
 
 module IR = struct
+  type ident = string
   type expr =
     | Int of int
     | Bool of bool
     | Var of string
+    | Call of ident * expr
 
   type instr = 
     | DeclVar of string
