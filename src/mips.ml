@@ -11,6 +11,7 @@ type label = string
 type loc = 
 | Lbl of label
 | Mem of reg * int
+| Reg of reg
 
 type instr =
   | Label of label
@@ -43,6 +44,7 @@ let fmt_reg = function
   let fmt_loc = function
   | Lbl (l)     -> l
   | Mem ( r,o ) -> ps "%d(%s)" o (fmt_reg r)
+  | Reg (r) -> ps "%s" (fmt_reg r)
 
 let fmt_instr = function
   | Label (l)         -> ps "%s:" l
@@ -59,12 +61,12 @@ let fmt_dir = function
   | Asciiz (s) -> ps ".asciiz \"%s\"" s
 
 let emit oc asm =
-  Printf.fprintf oc ".text\n.globl main\nmain:\n" ;
-(*   Printf.fprintf oc ".text\n.globl main\n" ; *)
+  (* Printf.fprintf oc ".text\n.globl main\nmain:\n" ;*)
+  Printf.fprintf oc ".text\n.globl main\n" ;
   (* on rajoute le label main en dur car on a pas encore la gesion des fonctions *)
   List.iter (fun i -> Printf.fprintf oc "%s\n" (fmt_instr i)) asm.text ;
   (* retour *)
-  Printf.fprintf oc " move $a0, $v0\n li $v0, 1\n syscall\n jr $ra\n" ;
+  (*Printf.fprintf oc " move $a0, $v0\n li $v0, 1\n syscall\n jr $ra\n" ;*)
   Printf.fprintf oc "\n.data\n" ;
   List.iter (fun (l, d) -> Printf.fprintf oc "%s: %s\n" l (fmt_dir d)) asm.data
 

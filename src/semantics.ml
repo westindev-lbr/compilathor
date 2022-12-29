@@ -17,11 +17,14 @@ let rec analyze_expr expr env =
     let aargs = List.map (fun arg -> analyze_expr arg env) c.args in
     Call (c.func, aargs)
 
+
 (* Analyse une instruction *)
 let rec analyze_instr instr env =
   match instr with
-  | Syntax.DeclVar dv -> 
-    DeclVar dv.name, Env.add dv.name true env
+  | Syntax.DeclVar v -> 
+    if Env.mem v.name env then
+      raise (Error ("variable already declared: " ^ v.name, v.pos));
+    DeclVar v.name, Env.add v.name true env
   (* Verifier qu'une variable a deja été affecté "false" *)
   | Syntax.Assign a -> 
     if not (Env.mem a.var env ) then 
@@ -30,7 +33,7 @@ let rec analyze_instr instr env =
     Assign (a.var, ae), env
 
 (* Analyse une liste d'instructions *)
-let rec analyze_block block env =
+and analyze_block block env =
   match block with
   | i :: b -> 
     let ai, new_env = analyze_instr i env in 
@@ -38,8 +41,23 @@ let rec analyze_block block env =
   (* On renvoi l'environnement retourné par l'analyse d'instr précédente *)
   | [] -> []
 
+
+let rec analyze_def def env =
+  match def with
+  | Syntax.DeclFunc f -> 
+    if Env.mem f.name env then
+      raise (Error ("function already declared: " ^ f.name, f.pos));
+    (* Analysez le corps de la fonction en utilisant un environnement étendu *)
+    let aenv = List.fold_left (fun env' arg -> Env.add arg false env') env f.args in
+    let abody = analyze_block f.body aenv in
+    Func (f.name, f.args, abody), env
+
+
 let analyze parsed =
-  analyze_block parsed Baselib._types_
+ List.map fst (List.map (fun def -> analyze_def def Baselib._types_) parsed )
+
+(* let analyze parsed =
+   analyze_block parsed Baselib._types_ *)
 (* on commence a lire avec l'environement de base de typage *)
 
 

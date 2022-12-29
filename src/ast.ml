@@ -6,7 +6,7 @@ module Syntax = struct
     | Bool of { value: bool
               ; pos: Lexing.position }  
     | Var of { name: string
-              ; pos: Lexing.position }  
+             ; pos: Lexing.position }  
     | Call of { func : ident
               ; args: expr list
               ; pos: Lexing.position }
@@ -18,8 +18,13 @@ module Syntax = struct
       ; expr: expr
       ; pos: Lexing.position
       }
-  type block = instr list
+    | DeclFunc of { name: ident
+              ; args: string list
+              ; body: block
+              ; pos: Lexing.position }
+  and block = instr list
 end
+
 
 module IR = struct
   type ident = string
@@ -27,11 +32,16 @@ module IR = struct
     | Int of int
     | Bool of bool
     | Var of string
-    | Call of ident * expr
+    | Call of ident * expr list
 
   type instr = 
     | DeclVar of string
     | Assign of string * expr
+  and block = instr list
 
-  type block = instr list
+  type def = 
+    | Func of ident * string list * block
+
+  type prog = def list
+
 end

@@ -19,6 +19,12 @@ rule token = parse
 | "="             { Leq }
 | "var"           { Lvar }
 | "+"             { Ladd }
+| "("             { Llpar }
+| ")"             { Lrpar }
+| ","             { Lcomma }
+| "{"             { Llbracket }
+| "}"             { Lrbracket }
+| "function"      { Lfunc }
 | num+ as n       { Lint (int_of_string n) }
 | ident as id     { Lident (id)}
 | _ as c          { raise (Error c) }
