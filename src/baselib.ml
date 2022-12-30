@@ -12,6 +12,25 @@ let builtins = [
   ; Add (V0, T0, T1) (* Ajoute T0 et T1 et stock le résultat dans VO *)
   ; Jr RA (* Saute vers l'instruction de retour *)
 
+
+  ; Label "puti"
+  ; Lw (A0, Mem (SP, 0))
+  ; Li (V0, Syscall.print_int)
+  ; Syscall
+  ; Jr RA
+
+  ; Label "geti"
+  ; Lw (A0, Mem (SP, 0))
+  ; Li (V0, Syscall.read_int)
+  ; Syscall
+  ; Jr RA
+
+  ; Label "puts"
+  ; Lw (A0, Mem (SP, 0))
+  ; Li (V0, Syscall.print_str)
+  ; Syscall
+  ; Jr RA
+
 ]
 
 (* mettre des fonctions deja écrites en assembleur MIPS ici *)

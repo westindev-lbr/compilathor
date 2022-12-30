@@ -10,5 +10,10 @@ Il y a des problèmes avec le Jr RA logique
 
 [x] Les fonctions afin d'avoir un main et une fonction add
 
-Todo : Faire les return puis les autres fonctions arithmétiques
+[x] Faire les return 
 
+[] Le type void
+[] Les autres fonctions arithmétiques
+[] L'instruction Expr
+[] Conditions
+[] Typage

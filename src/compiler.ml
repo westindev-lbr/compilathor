@@ -7,6 +7,7 @@ type cinfo = {
   asm: instr list 
 ; env: loc Env.t (* Adresses  *)
 ; fpo: int
+; return: string
 }
 
 let rec compile_expr expr env =
@@ -36,6 +37,11 @@ let compile_instr instr info =
             @ compile_expr e info.env
             @ [ Sw (V0, Env.find v info.env)]
     }
+  | Return e ->
+    { info with
+      asm = info.asm
+            @ compile_expr e info.env
+            @ [ B info.return ] }
 
 
 let rec compile_block block info = 
@@ -53,34 +59,22 @@ let rec compile_def ( Func (name, args, body)) =
             Env.empty
             (List.mapi (fun i arg -> arg, Mem (FP, 4 * (i + 1))) (List.rev args))
       ; fpo = 8 (* on suppose pour stocker Le nb de'arguments et RA *)
+      ; return = "return"
       }
   in 
+  []
+  @
   [ Label name
   ; Addi (SP, SP, -cbody.fpo)
   ; Sw (RA, Mem (SP, cbody.fpo - 4))
   ; Sw (FP, Mem (SP, cbody.fpo - 8))
   ; Addi (FP, SP, cbody.fpo - 4) ]
-  (*[ Label name
-    (* Réserver de la place sur la pile pour stocker les arguments et RA *)
-    ; Addi (SP, SP, -cbody.fpo)
-    (* Sauvegarder RA et FP sur la pile avant de changer leur valeur *)
-    ; Sw (RA, Mem (SP, 4))
-    ; Sw (FP, Mem (SP, 0))
-    (* Mettre à jour FP et SP pour pointer sur la nouvelle zone de pile réservée pour la fonction *)
-    ; Addi (FP, SP, 4)
-    ]*)
-  (* Ajouter le code généré pour le corps de la fonction au code final de la fonction *)
   @ cbody.asm
-  @ [ Addi (SP, SP, cbody.fpo)
+  @ [Label cbody.return 
+    ; Addi (SP, SP, cbody.fpo)
     ; Lw (RA, Mem (FP, 0))
     ; Lw (FP, Mem (FP, -4))
     ; Jr (RA) ]
-(* Restaurer RA, FP et SP avant de quitter la fonction *)
-(* @ [ 
-   ; Lw (RA, Mem (FP, 0))
-   ; Addi (SP, FP, 4)
-   ; Lw (FP, Mem (FP, -4))
-   ; Jr RA ] *)
 
 let rec compile_prog p =
   match p with

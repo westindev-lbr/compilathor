@@ -1,0 +1,4 @@
+function main (){
+    var abc = 10 + 21;
+    return abc;
+}

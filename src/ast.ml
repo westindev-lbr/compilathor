@@ -18,11 +18,15 @@ module Syntax = struct
       ; expr: expr
       ; pos: Lexing.position
       }
-    | DeclFunc of { name: ident
+    | Return of { expr: expr
+                ; pos: Lexing.position }
+  and block = instr list
+
+  type def = 
+    | Func of { name: ident
               ; args: string list
               ; body: block
               ; pos: Lexing.position }
-  and block = instr list
 end
 
 
@@ -37,6 +41,7 @@ module IR = struct
   type instr = 
     | DeclVar of string
     | Assign of string * expr
+    | Return of expr
   and block = instr list
 
   type def = 

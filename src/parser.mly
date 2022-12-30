@@ -11,11 +11,12 @@
 %token Ladd
 %token Lfunc
 %token Llpar Lrpar Lcomma Llbracket Lrbracket
+%token Lreturn
 
 %start prog
 
 /* %type <Ast.Syntax.expr> prog */
-%type <Ast.Syntax.block> prog
+%type <Ast.Syntax.def list> prog
 
 %%
 
@@ -34,11 +35,10 @@ prog:
     { [] }
 ;
 
-
 def:
   | Lfunc; id = Lident; Llpar; args = arg_list; Lrpar; b = block
     {
-      DeclFunc { name = id; 
+      Func { name = id; 
               args = args; 
               body = b; 
               pos = $startpos($1) }
@@ -72,6 +72,10 @@ instr:
         ; pos = $startpos($2) }
       ]
     }
+  | Lreturn; e = expr 
+    { 
+      [Return { expr = e ; pos = $startpos }]
+    }
   ;
 
 
@@ -86,7 +90,6 @@ block:
   | Llbracket; b = block_contents; Lrbracket 
     { b }
   ;
-
 
 expr_list:
   | e = expr; Lcomma; el = expr_list { e :: el }
@@ -119,5 +122,3 @@ expr:
       Call { func = id; args = args; pos = $startpos(id) }
     }
   ;
-
-

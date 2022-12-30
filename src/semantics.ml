@@ -31,6 +31,10 @@ let rec analyze_instr instr env =
       raise (Error ("variable does not exist: " ^a.var, a.pos));
     let ae = analyze_expr a.expr env in
     Assign (a.var, ae), env
+  | Syntax.Return r ->
+    let ae = analyze_expr r.expr env in
+    Return ae, env
+
 
 (* Analyse une liste d'instructions *)
 and analyze_block block env =
@@ -44,7 +48,7 @@ and analyze_block block env =
 
 let rec analyze_def def env =
   match def with
-  | Syntax.DeclFunc f -> 
+  | Syntax.Func f -> 
     if Env.mem f.name env then
       raise (Error ("function already declared: " ^ f.name, f.pos));
     (* Analysez le corps de la fonction en utilisant un environnement étendu *)
@@ -54,7 +58,7 @@ let rec analyze_def def env =
 
 
 let analyze parsed =
- List.map fst (List.map (fun def -> analyze_def def Baselib._types_) parsed )
+  List.map fst (List.map (fun def -> analyze_def def Baselib._types_) parsed )
 
 (* let analyze parsed =
    analyze_block parsed Baselib._types_ *)

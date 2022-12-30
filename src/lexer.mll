@@ -25,6 +25,7 @@ rule token = parse
 | "{"             { Llbracket }
 | "}"             { Lrbracket }
 | "function"      { Lfunc }
+| "return"        { Lreturn }
 | num+ as n       { Lint (int_of_string n) }
 | ident as id     { Lident (id)}
 | _ as c          { raise (Error c) }
