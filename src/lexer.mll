@@ -23,7 +23,7 @@ rule token = parse
 | "-"             { Lsub }
 | "/"             { Ldiv }
 | "=="            { Lequal }
-| "!="           { Lnotequal }
+| "!="            { Lnotequal }
 | ">"             { Lbigger }
 | "<"             { Lsmaller }
 | "&&"            { Land }
