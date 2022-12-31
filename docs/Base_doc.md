@@ -19,3 +19,6 @@ Il y a des problèmes avec le Jr RA logique
 [x] Boucle while
 [] String
 [] Typage & Verification de type
+[] Malloc / Deref / Pointeur
+[] Liste / Tab / Struct
+[] Liste chainée
