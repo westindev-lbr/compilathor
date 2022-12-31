@@ -22,6 +22,7 @@ module Syntax = struct
                  ; fbranch: block option
                  ; pos: Lexing.position
                  }
+    | Loop    of { cond: expr ; body:block; pos: Lexing.position }
   and block = instr list
 
   type def = 
@@ -49,6 +50,7 @@ module IR = struct
     | Expr of expr
     | Return of expr
     | Cond of expr * block * block option
+    | Loop of expr * block
   and block = instr list
 
   type def = 
@@ -73,6 +75,7 @@ module IR = struct
       | Expr e        -> "Expr (" ^ (fmt_e e) ^ ")"
       | Return e      -> "Return (" ^ (fmt_e e) ^ ")"
       | Cond (c, b1, b2) -> "Cond (" ^ (fmt_e c) ^ ", " ^ (fmt_b b1) ^ ", " ^ (fmt_b_opt b2) ^ ")"
+      | Loop (c, b) -> "Loop (" ^ (fmt_e c) ^ ", " ^ (fmt_b b) ^ ")"
     and fmt_b b = "[ " ^ (String.concat "\n#; " (List.map fmt_i b)) ^ " ]"
     and fmt_b_opt b = 
       match b with

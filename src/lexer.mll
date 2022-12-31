@@ -23,7 +23,7 @@ rule token = parse
 | "-"             { Lsub }
 | "/"             { Ldiv }
 | "=="            { Lequal }
-| "/=="           { Lnotequal }
+| "!="           { Lnotequal }
 | ">"             { Lbigger }
 | "<"             { Lsmaller }
 | "&&"            { Land }
@@ -35,6 +35,8 @@ rule token = parse
 | "}"             { Lrbrace }
 | "if"            { Lif }
 | "else"          { Lelse }
+| "while"         { Lwhile }
+| "for"           { Lfor }
 | "function"      { Lfunc }
 | "return"        { Lreturn }
 | num+ as n       { Lint (int_of_string n) }

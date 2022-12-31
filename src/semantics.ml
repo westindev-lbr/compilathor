@@ -54,6 +54,10 @@ let rec analyze_instr instr env =
       | Some b -> Some (analyze_block b env)
     in 
     Cond (ac, atb, afb) , env
+  | Syntax.Loop l -> 
+      let ac = analyze_expr l.cond env in
+      let ab = analyze_block l.body env in
+        Loop (ac, ab), env
 
 
 (* Analyse une liste d'instructions *)

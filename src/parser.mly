@@ -12,6 +12,7 @@
 %token Lfunc
 %token Llpar Lrpar Lcomma Llbrace Lrbrace
 %token Lreturn
+%token Lwhile Lfor
 //%token Lprint
 %token Lif Lelse
 
@@ -92,6 +93,10 @@ instr:
   | Lif ; Llpar ; cond = expr ; Lrpar ; b1 = block ; b2 = opt_block
     {
       [Cond { cond = cond; tbranch = b1; fbranch = b2; pos = $startpos($1) }]
+    }
+  | Lwhile ; Llpar ; cond = expr ; Lrpar ; b = block 
+    { 
+      [Loop { cond = cond; body = b; pos = $startpos($1) }] 
     }
   ;
 

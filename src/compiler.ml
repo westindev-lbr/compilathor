@@ -76,6 +76,22 @@ let rec compile_instr instr info =
     ; counter = (match ce with
           | None -> ct.counter
           | Some ce -> ce.counter) }
+  | Loop (c ,b) -> 
+    let uniq = string_of_int info.counter in
+    let cb = compile_block b { info with asm = []
+                                       ; counter = info.counter + 1 } in
+    { info with
+      asm = info.asm
+            @ [ Label ("loop" ^ uniq) ]
+            @ compile_expr c info.env
+            @ [ Beqz (V0, "end_loop" ^ uniq) ]
+            @ cb.asm
+            @ [ B ("loop" ^ uniq)
+              ; Label ("end_loop" ^ uniq) ]
+    ; counter = cb.counter }
+
+
+
 and compile_block block info = 
   match block with
   | i :: b -> 

@@ -15,6 +15,7 @@ Il y a des problèmes avec le Jr RA logique
 [x] Affichage Représentation intermédiaire en commentaire dans l'asm
 [x] Les autres fonctions arithmétiques
 [x] Conditions
-[] Boucles
+[x] Récursivité
+[x] Boucle while
 [] String
-[] Typage
+[] Typage & Verification de type

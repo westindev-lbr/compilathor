@@ -1,7 +1,8 @@
 # Représentation Intermédiaire :
-#[ Func ("fact", [n ],[ Cond (Call ("_bigger", [ Var "n" ; Value (Int 0) ]), [ Return (Call ("_mul", [ Var "n" ; Call ("fact", [ Call ("_sub", [ Var "n" ; Value (Int 1) ]) ]) ])) ], None)
-#; Return (Value (Int 1)) ])]
-#[ Func ("main", [ ],[ Expr (Call ("puti", [ Call ("fact", [ Value (Int 10) ]) ])) ])]
+#[ Func ("main", [ ],[ DeclVar "i"
+#; Assign ("i", Value (Int 0))
+#; Loop (Call ("_smaller", [ Var "i" ; Value (Int 10) ]), [ Assign ("i", Call ("_add", [ Var "i" ; Value (Int 1) ]))
+#; Expr (Call ("puti", [ Var "i" ])) ]) ])]
 
 .text
 .globl main
@@ -70,66 +71,41 @@ _or:
  lw $t1, 4($sp)
  or $v0, $t1, $t0
  jr $ra
-fact:
- addi $sp, $sp, -8
- sw $ra, 4($sp)
- sw $fp, 0($sp)
- addi $fp, $sp, 4
- lw $v0, 4($fp)
- addi $sp, $sp, -4
- sw $v0, 0($sp)
- li $v0, 0
- addi $sp, $sp, -4
- sw $v0, 0($sp)
- jal _bigger
- addi $sp, $sp, 8
- beqz $v0, else1
- lw $v0, 4($fp)
- addi $sp, $sp, -4
- sw $v0, 0($sp)
- lw $v0, 4($fp)
- addi $sp, $sp, -4
- sw $v0, 0($sp)
- li $v0, 1
- addi $sp, $sp, -4
- sw $v0, 0($sp)
- jal _sub
- addi $sp, $sp, 8
- addi $sp, $sp, -4
- sw $v0, 0($sp)
- jal fact
- addi $sp, $sp, 4
- addi $sp, $sp, -4
- sw $v0, 0($sp)
- jal _mul
- addi $sp, $sp, 8
- b ret0
- b endif1
-else1:
-endif1:
- li $v0, 1
- b ret0
-ret0:
- addi $sp, $sp, 8
- lw $ra, 0($fp)
- lw $fp, -4($fp)
- jr $ra
 main:
- addi $sp, $sp, -8
- sw $ra, 4($sp)
- sw $fp, 0($sp)
- addi $fp, $sp, 4
+ addi $sp, $sp, -12
+ sw $ra, 8($sp)
+ sw $fp, 4($sp)
+ addi $fp, $sp, 8
+ li $v0, 0
+ sw $v0, 8($fp)
+loop1:
+ lw $v0, 8($fp)
+ addi $sp, $sp, -4
+ sw $v0, 0($sp)
  li $v0, 10
  addi $sp, $sp, -4
  sw $v0, 0($sp)
- jal fact
- addi $sp, $sp, 4
+ jal _smaller
+ addi $sp, $sp, 8
+ beqz $v0, end_loop1
+ lw $v0, 8($fp)
+ addi $sp, $sp, -4
+ sw $v0, 0($sp)
+ li $v0, 1
+ addi $sp, $sp, -4
+ sw $v0, 0($sp)
+ jal _add
+ addi $sp, $sp, 8
+ sw $v0, 8($fp)
+ lw $v0, 8($fp)
  addi $sp, $sp, -4
  sw $v0, 0($sp)
  jal puti
  addi $sp, $sp, 4
-ret2:
- addi $sp, $sp, 8
+ b loop1
+end_loop1:
+ret0:
+ addi $sp, $sp, 12
  lw $ra, 0($fp)
  lw $fp, -4($fp)
  jr $ra

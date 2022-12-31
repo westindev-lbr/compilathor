@@ -6,5 +6,5 @@ function fact(n){
 }
 
 function main(){
-    puti(fact(8));
+    puti(fact(10));
 }
