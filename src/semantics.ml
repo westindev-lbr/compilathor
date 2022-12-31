@@ -4,11 +4,19 @@ open Baselib
 
 exception Error of string * Lexing.position
 
+
+let analyze_value value =
+  match value with
+  | Syntax.Void -> Void
+  | Syntax.Int n  -> Int n
+  | Syntax.Bool b -> Bool b
+
 (* Analyse une expression *)
 let rec analyze_expr expr env =
   match expr with
-  | Syntax.Int n -> Int n.value
-  | Syntax.Bool b -> Bool b.value
+  | Syntax.Value v ->
+      let av = analyze_value v.value in
+      Value av 
   | Syntax.Var v -> 
     if not (Env.mem v.name env ) then 
       raise (Error ("unbound variable: " ^ v.name, v.pos));
@@ -34,6 +42,9 @@ let rec analyze_instr instr env =
   | Syntax.Return r ->
     let ae = analyze_expr r.expr env in
     Return ae, env
+  | Syntax.Expr e ->
+    let ae = analyze_expr e.expr env in
+    Expr ae, env
 
 
 (* Analyse une liste d'instructions *)

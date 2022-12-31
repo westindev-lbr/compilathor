@@ -8,12 +8,10 @@ il reconnait les variables et assignation.
 L'addition a été ajouté sous forme de fonction sans implémanter les fonctions
 Il y a des problèmes avec le Jr RA logique
 
-[x] Les fonctions afin d'avoir un main et une fonction add
-
-[x] Faire les return 
-
-[] Le type void
+[x] Déclaration de Fonction, Appel de fonction
+[x] Return
+[x] Expr
+[x] Le type void (à revoir)
 [] Les autres fonctions arithmétiques
-[] L'instruction Expr
 [] Conditions
 [] Typage

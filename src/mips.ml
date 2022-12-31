@@ -1,4 +1,5 @@
 type reg =
+  | Zero
   | V0
   | A0
   | A1
@@ -18,11 +19,13 @@ type loc =
 type instr =
   | Label   of label
   | Li      of reg * int
+  | La      of reg * loc
   | Sw      of reg * loc
   | Lw      of reg * loc 
   | Move    of reg * reg 
   | Addi    of reg * reg * int
   | Add     of reg * reg * reg
+  | Mul     of reg * reg * reg
   | Syscall
   | B       of label
   | Jr      of reg
@@ -46,6 +49,7 @@ end
 let ps = Printf.sprintf (* alias raccourci *)
 
 let fmt_reg = function
+  | Zero -> "$zero"
   | V0 -> "$v0"
   | A0 -> "$a0"
   | A1 -> "$a1"
@@ -63,11 +67,13 @@ let fmt_loc = function
 let fmt_instr = function
   | Label (l)         -> ps "%s:" l
   | Li (r, i)         -> ps " li %s, %d" (fmt_reg r) i
+  | La (r, a)         -> ps "  la %s, %s" (fmt_reg r) (fmt_loc a)
   | Sw (r, l)         -> ps " sw %s, %s" (fmt_reg r) (fmt_loc l)
   | Lw (r, l)         -> ps " lw %s, %s" (fmt_reg r) (fmt_loc l)
   | Move (d,s)        -> ps " move %s, %s" (fmt_reg d) (fmt_reg s)
   | Addi (d, r, i)    -> ps " addi %s, %s, %d" (fmt_reg d) (fmt_reg r) i
   | Add (d, r1, r2)   -> ps " add %s, %s, %s" (fmt_reg d) (fmt_reg r1) (fmt_reg r2)
+  | Mul (rd, rs, rt)  -> ps " mul %s, %s, %s" (fmt_reg rd) (fmt_reg rs) (fmt_reg rt)
   | Syscall           -> ps " syscall"
   | B (l)             -> ps " b %s" l
   | Jr (r)            -> ps " jr %s" (fmt_reg r)
@@ -82,7 +88,7 @@ let emit oc asm =
   (* on rajoute le label main en dur car on a pas encore la gesion des fonctions *)
   List.iter (fun i -> Printf.fprintf oc "%s\n" (fmt_instr i)) asm.text ;
   (* retour *)
-  Printf.fprintf oc " move $a0, $v0\n li $v0, 1\n syscall\n jr $ra\n" ;
+  (*Printf.fprintf oc " move $a0, $v0\n li $v0, 1\n syscall\n jr $ra\n" ;*)
   Printf.fprintf oc "\n.data\n" ;
   List.iter (fun (l, d) -> Printf.fprintf oc "%s: %s\n" l (fmt_dir d)) asm.data
 

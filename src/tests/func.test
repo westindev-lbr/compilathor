@@ -1,3 +1,15 @@
-function main (){
-    var abc = 10;
+function printNum(num){
+    return num;
+}
+
+function main(){
+    var a = 1;
+    var b = 2;
+    var c = 3;
+    var d = 4;
+    print(printNum(a));
+    print(b);
+    print(c);
+    print(d);
+    print(printNum(256));
 }

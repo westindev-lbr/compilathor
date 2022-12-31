@@ -8,10 +8,11 @@
 %token <bool> Lbool
 %token <string> Lident
 %token Lsc Lend Lvar Leq
-%token Ladd
+%token Ladd Lmul
 %token Lfunc
 %token Llpar Lrpar Lcomma Llbracket Lrbracket
 %token Lreturn
+%token Lprint
 
 %start prog
 
@@ -30,18 +31,18 @@
   ; */
 
 prog:
-  | df = def; p = prog { df :: p }
-  | Lend
-    { [] }
+  | df = def; p = prog { df @ p }
+  | df = def ; Lend { df }
+  | Lend { [] }
 ;
 
 def:
   | Lfunc; id = Lident; Llpar; args = arg_list; Lrpar; b = block
     {
-      Func { name = id; 
+      [ Func { name = id; 
               args = args; 
               body = b; 
-              pos = $startpos($1) }
+              pos = $startpos($1) } ]
     }
   ;
 
@@ -72,9 +73,13 @@ instr:
         ; pos = $startpos($2) }
       ]
     }
+  | e = expr
+   {
+    [Expr { expr = e; pos = $startpos(e)}]
+   }
   | Lreturn; e = expr 
     { 
-      [Return { expr = e ; pos = $startpos }]
+      [Return { expr = e ; pos = $startpos(e) }]
     }
   ;
 
@@ -82,7 +87,7 @@ instr:
 
 block_contents:
   | i = instr ; Lsc ; b = block_contents { i @ b }
-  | i = instr { i }
+  | i = instr ; Lsc { i }
   | { [] }
   ;
 
@@ -100,11 +105,11 @@ expr_list:
 expr:
   | n = Lint 
     {
-      Int { value = n ; pos = $startpos(n) }
+      Value { value = Int n ; pos = $startpos(n) }
     }
   | b = Lbool 
     {
-      Bool { value = b ; pos = $startpos(b) } 
+      Value { value = Bool b ; pos = $startpos(b) } 
     }
   | v = Lident 
     { 
@@ -116,9 +121,20 @@ expr:
       ; args = [ a ; b ]
       ; pos = $startpos($2) }
     }
+  | a = expr; Lmul ; b = expr
+    {
+      Call { func = "_mul"
+      ; args = [ a ; b ]
+      ; pos = $startpos($2) }
+    }
   /* APPEL DE FONCTION */
   | id = Lident; Llpar; args = expr_list; Lrpar
     {
       Call { func = id; args = args; pos = $startpos(id) }
+    }
+  /* CALL PRINT */
+  | Lprint; Llpar; e = expr_list ; Lrpar
+    {
+      Call { func = "puti"; args = e; pos = $startpos($2) }
     }
   ;

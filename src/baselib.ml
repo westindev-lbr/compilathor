@@ -12,6 +12,11 @@ let builtins = [
   ; Add (V0, T0, T1) (* Ajoute T0 et T1 et stock le résultat dans VO *)
   ; Jr RA (* Saute vers l'instruction de retour *)
 
+  ; Label "_mul"
+  ; Lw (T0, Mem (SP, 0))
+  ; Lw (T1, Mem (SP, 4))
+  ; Mul (V0, T0, T1)
+  ; Jr RA
 
   ; Label "puti"
   ; Lw (A0, Mem (SP, 0))

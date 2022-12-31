@@ -22,6 +22,9 @@ let () =
     close_in f ;
     (* on ferme le fichier *)
     let ast = Semantics.analyze parsed in
+    print_string "# Représentation Intermédiaire :\n";
+    List.iter (fun s -> print_endline s) (List.map (fun s -> String.make 1 '#' ^ s) (List.map IR.string_of_ir ast));
+    print_newline ();
     (* on analyse semantique, on pourra rajouter ici l'étape de collecte de chaine constantes *)
     let asm = Compiler.compile ast in
     Mips.emit Stdlib.stdout asm
