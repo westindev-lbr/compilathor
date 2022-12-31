@@ -36,7 +36,6 @@ rule token = parse
 | "if"            { Lif }
 | "else"          { Lelse }
 | "while"         { Lwhile }
-| "for"           { Lfor }
 | "function"      { Lfunc }
 | "return"        { Lreturn }
 | num+ as n       { Lint (int_of_string n) }
