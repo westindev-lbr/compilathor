@@ -1,0 +1,12 @@
+function fact(n){
+    if (n < 5){
+         return 2;
+    } else {
+        return 1;
+    };
+}
+
+function main(){
+    var a = fact(4);
+    puti(a);
+}

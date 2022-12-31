@@ -29,7 +29,7 @@ let rec compile_expr expr env =
     List.flatten cargs
     @ [ Jal f ; Addi (SP, SP, 4 * (List.length args)) ]
 
-let compile_instr instr info = 
+let rec compile_instr instr info = 
   match instr with 
   | DeclVar v -> 
     {
@@ -52,9 +52,31 @@ let compile_instr instr info =
       asm = info.asm
             @ compile_expr e info.env
             @ [ B info.return ] }
-
-
-let rec compile_block block info = 
+  | Cond (c, t, e) ->
+    let uniq = string_of_int info.counter in
+    let ct = compile_block t { info with asm = []
+                                       ; counter = info.counter + 1 } in
+    let ce = 
+      match e with
+      | None -> None
+      | Some b -> Some (
+          compile_block b { info with asm = []
+                                    ; counter = ct.counter }) in
+    { info with
+      asm = info.asm
+            @ compile_expr c info.env
+            @ [ Beqz (V0, "else" ^ uniq) ]
+            @ ct.asm
+            @ [ B ("endif" ^ uniq)
+              ; Label ("else" ^ uniq) ]
+            @ (match ce with 
+                | None -> [] 
+                | Some ce -> ce.asm)
+            @ [ Label ("endif" ^ uniq) ]
+    ; counter = (match ce with
+          | None -> ct.counter
+          | Some ce -> ce.counter) }
+and compile_block block info = 
   match block with
   | i :: b -> 
     let new_info = compile_instr i info in compile_block b new_info

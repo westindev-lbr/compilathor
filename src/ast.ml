@@ -6,25 +6,22 @@ module Syntax = struct
     | Bool of bool
 
   type expr =
-    | Value of { value: value
-               ; pos: Lexing.position }  
-    | Var of { name: ident
-             ; pos: Lexing.position }  
-    | Call of { func : ident
-              ; args: expr list
-              ; pos: Lexing.position }
+    | Value   of { value: value ; pos: Lexing.position }  
+    | Var     of { name: ident ; pos: Lexing.position }  
+    | Call    of { func : ident
+                 ; args: expr list
+                 ; pos: Lexing.position }
 
   type instr = 
     | DeclVar of { name: ident ; pos: Lexing.position}
-    | Assign of {
-        var: ident
-      ; expr: expr
-      ; pos: Lexing.position
-      }
-    | Expr of { expr: expr
-              ; pos: Lexing.position }
-    | Return of { expr: expr
-                ; pos: Lexing.position }
+    | Assign  of { var: ident ; expr: expr ; pos: Lexing.position }
+    | Expr    of { expr: expr ; pos: Lexing.position }
+    | Return  of { expr: expr ; pos: Lexing.position }
+    | Cond    of { cond: expr
+                 ; tbranch: block
+                 ; fbranch: block option
+                 ; pos: Lexing.position
+                 }
   and block = instr list
 
   type def = 
@@ -51,6 +48,7 @@ module IR = struct
     | Assign of ident * expr
     | Expr of expr
     | Return of expr
+    | Cond of expr * block * block option
   and block = instr list
 
   type def = 
@@ -72,9 +70,14 @@ module IR = struct
     and fmt_i = function
       | DeclVar v     -> "DeclVar \"" ^ v ^ "\""
       | Assign (v, e) -> "Assign (\"" ^ v ^ "\", " ^ (fmt_e e) ^ ")"
-      | Return e      -> "Return (" ^ (fmt_e e) ^ ")"
       | Expr e        -> "Expr (" ^ (fmt_e e) ^ ")"
+      | Return e      -> "Return (" ^ (fmt_e e) ^ ")"
+      | Cond (c, b1, b2) -> "Cond (" ^ (fmt_e c) ^ ", " ^ (fmt_b b1) ^ ", " ^ (fmt_b_opt b2) ^ ")"
     and fmt_b b = "[ " ^ (String.concat "\n#; " (List.map fmt_i b)) ^ " ]"
+    and fmt_b_opt b = 
+      match b with
+      | None -> "None"
+      | Some b -> "Some " ^ (fmt_b b)
     and fmt_d = function
       | Func (f, a, b) ->  "[ Func (\"" ^ f ^ "\", [" ^ (String.concat "\n#; " (List.map (fun x -> x) a)) ^ " ],"
                            ^ (fmt_b b) 

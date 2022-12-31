@@ -3,16 +3,25 @@
   open Ast.Syntax
 %}
 
-/* declare que les entiers et la fin du fichier */
 %token <int> Lint
 %token <bool> Lbool
 %token <string> Lident
 %token Lsc Lend Lvar Leq
-%token Ladd Lmul
+%token Ladd Lmul Lsub Ldiv
+%token Land Lor Lequal Lnotequal Lbigger Lsmaller
 %token Lfunc
-%token Llpar Lrpar Lcomma Llbracket Lrbracket
+%token Llpar Lrpar Lcomma Llbrace Lrbrace
 %token Lreturn
-%token Lprint
+//%token Lprint
+%token Lif Lelse
+
+%left Lor
+%left Land
+%left Ladd Lsub
+%left Lmul Ldiv
+%left Lequal Lnotequal
+%left Lbigger Lsmaller
+
 
 %start prog
 
@@ -33,7 +42,6 @@
 prog:
   | df = def; p = prog { df @ p }
   | df = def ; Lend { df }
-  | Lend { [] }
 ;
 
 def:
@@ -49,7 +57,7 @@ def:
 arg_list:
   | id = Lident; Lcomma; ids = arg_list { id :: ids }
   | id = Lident { [id] }
-  | /* vide */ { [] }
+  | { [] }
   ;
 
   
@@ -74,15 +82,29 @@ instr:
       ]
     }
   | e = expr
-   {
-    [Expr { expr = e; pos = $startpos(e)}]
-   }
+    {
+      [Expr { expr = e; pos = $startpos(e)}]
+    }
   | Lreturn; e = expr 
     { 
       [Return { expr = e ; pos = $startpos(e) }]
     }
+  | Lif ; Llpar ; cond = expr ; Lrpar ; b1 = block ; b2 = opt_block
+    {
+      [Cond { cond = cond; tbranch = b1; fbranch = b2; pos = $startpos($1) }]
+    }
   ;
 
+
+opt_block:
+  | Lelse ; b = block { Some b }
+  | { None }
+  ;
+
+block:
+  | Llbrace; b = block_contents; Lrbrace 
+    { b }
+  ;
 
 
 block_contents:
@@ -91,10 +113,6 @@ block_contents:
   | { [] }
   ;
 
-block:
-  | Llbracket; b = block_contents; Lrbracket 
-    { b }
-  ;
 
 expr_list:
   | e = expr; Lcomma; el = expr_list { e :: el }
@@ -115,26 +133,50 @@ expr:
     { 
       Var { name = v ; pos = $startpos(v) }
     }
+  | Llpar; e = expr; Lrpar   { e }
+  | a = expr; Land; b = expr 
+    { 
+      Call { func = "_and" ;  args = [ a ; b ] ; pos = $startpos($2) }
+    }
+  | a = expr; Lor; b = expr 
+    { 
+      Call { func = "_or" ;  args = [ a ; b ] ; pos = $startpos($2) }
+    }
+  | a = expr; Lequal; b = expr 
+    { 
+      Call { func = "_equal" ;  args = [ a ; b ] ; pos = $startpos($2) }
+    }
+  | a = expr; Lnotequal; b = expr
+    { 
+      Call { func = "_notequal" ;  args = [ a ; b ] ; pos = $startpos($2) }
+    }
+  | a = expr; Lbigger; b = expr 
+    { 
+      Call { func = "_bigger" ;  args = [ a ; b ] ; pos = $startpos($2) }
+    }
+  | a = expr; Lsmaller; b = expr 
+    { 
+      Call { func = "_smaller" ;  args = [ a ; b ] ; pos = $startpos($2) }
+    }
   | a = expr; Ladd ; b = expr
     {
-      Call { func = "_add"
-      ; args = [ a ; b ]
-      ; pos = $startpos($2) }
+      Call { func = "_add" ; args = [ a ; b ] ; pos = $startpos($2) }
     }
   | a = expr; Lmul ; b = expr
     {
-      Call { func = "_mul"
-      ; args = [ a ; b ]
-      ; pos = $startpos($2) }
+      Call { func = "_mul" ; args = [ a ; b ] ; pos = $startpos($2) }
+    }
+  | a = expr; Lsub ; b = expr
+    {
+      Call { func = "_sub" ; args = [ a ; b ] ; pos = $startpos($2) }
+    }
+  | a = expr; Ldiv ; b = expr
+    {
+      Call { func = "_div" ; args = [ a ; b ] ; pos = $startpos($2) }
     }
   /* APPEL DE FONCTION */
   | id = Lident; Llpar; args = expr_list; Lrpar
     {
       Call { func = id; args = args; pos = $startpos(id) }
-    }
-  /* CALL PRINT */
-  | Lprint; Llpar; e = expr_list ; Lrpar
-    {
-      Call { func = "puti"; args = e; pos = $startpos($2) }
     }
   ;

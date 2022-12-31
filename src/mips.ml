@@ -26,8 +26,17 @@ type instr =
   | Addi    of reg * reg * int
   | Add     of reg * reg * reg
   | Mul     of reg * reg * reg
+  | Sub     of reg * reg * reg
+  | Div     of reg * reg * reg
+  | Seq     of reg * reg * reg
+  | Sne     of reg * reg * reg
+  | Sgt     of reg * reg * reg
+  | Slt     of reg * reg * reg
+  | And     of reg * reg * reg
+  | Or      of reg * reg * reg
   | Syscall
   | B       of label
+  | Beqz    of reg * label
   | Jr      of reg
   | Jal     of label
 
@@ -67,15 +76,24 @@ let fmt_loc = function
 let fmt_instr = function
   | Label (l)         -> ps "%s:" l
   | Li (r, i)         -> ps " li %s, %d" (fmt_reg r) i
-  | La (r, a)         -> ps "  la %s, %s" (fmt_reg r) (fmt_loc a)
+  | La (r, a)         -> ps " la %s, %s" (fmt_reg r) (fmt_loc a)
   | Sw (r, l)         -> ps " sw %s, %s" (fmt_reg r) (fmt_loc l)
   | Lw (r, l)         -> ps " lw %s, %s" (fmt_reg r) (fmt_loc l)
   | Move (d,s)        -> ps " move %s, %s" (fmt_reg d) (fmt_reg s)
   | Addi (d, r, i)    -> ps " addi %s, %s, %d" (fmt_reg d) (fmt_reg r) i
   | Add (d, r1, r2)   -> ps " add %s, %s, %s" (fmt_reg d) (fmt_reg r1) (fmt_reg r2)
   | Mul (rd, rs, rt)  -> ps " mul %s, %s, %s" (fmt_reg rd) (fmt_reg rs) (fmt_reg rt)
+  | Sub (rd, rs, rt)  -> ps " sub %s, %s, %s" (fmt_reg rd) (fmt_reg rs) (fmt_reg rt)
+  | Div (rd, rs, rt)  -> ps " div %s, %s, %s" (fmt_reg rd) (fmt_reg rs) (fmt_reg rt)
+  | Seq (rd, rs, rt)  -> ps " seq %s, %s, %s" (fmt_reg rd) (fmt_reg rs) (fmt_reg rt)
+  | Sne (rd, rs, rt)  -> ps " sne %s, %s, %s" (fmt_reg rd) (fmt_reg rs) (fmt_reg rt)
+  | Sgt (rd, rs, rt)  -> ps " sgt %s, %s, %s" (fmt_reg rd) (fmt_reg rs) (fmt_reg rt)
+  | Slt (rd, rs, rt)  -> ps " slt %s, %s, %s" (fmt_reg rd) (fmt_reg rs) (fmt_reg rt)
+  | And (rd, rs, rt)  -> ps " and %s, %s, %s" (fmt_reg rd) (fmt_reg rs) (fmt_reg rt)
+  | Or (rd, rs, rt)   -> ps " or %s, %s, %s" (fmt_reg rd) (fmt_reg rs) (fmt_reg rt)
   | Syscall           -> ps " syscall"
   | B (l)             -> ps " b %s" l
+  | Beqz (r, l)       -> ps " beqz %s, %s" (fmt_reg r) l
   | Jr (r)            -> ps " jr %s" (fmt_reg r)
   | Jal (l)           -> ps " jal %s" l
 

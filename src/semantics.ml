@@ -15,8 +15,8 @@ let analyze_value value =
 let rec analyze_expr expr env =
   match expr with
   | Syntax.Value v ->
-      let av = analyze_value v.value in
-      Value av 
+    let av = analyze_value v.value in
+    Value av 
   | Syntax.Var v -> 
     if not (Env.mem v.name env ) then 
       raise (Error ("unbound variable: " ^ v.name, v.pos));
@@ -45,6 +45,15 @@ let rec analyze_instr instr env =
   | Syntax.Expr e ->
     let ae = analyze_expr e.expr env in
     Expr ae, env
+  | Syntax.Cond c -> 
+    let ac = analyze_expr c.cond env in
+    let atb = analyze_block c.tbranch env in
+    let afb = 
+      match c.fbranch with
+      | None -> None
+      | Some b -> Some (analyze_block b env)
+    in 
+    Cond (ac, atb, afb) , env
 
 
 (* Analyse une liste d'instructions *)

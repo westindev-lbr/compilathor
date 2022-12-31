@@ -13,6 +13,8 @@ Il y a des problèmes avec le Jr RA logique
 [x] Expr
 [x] Le type void (à revoir)
 [x] Affichage Représentation intermédiaire en commentaire dans l'asm
-[] Les autres fonctions arithmétiques
-[] Conditions
+[x] Les autres fonctions arithmétiques
+[x] Conditions
+[] Boucles
+[] String
 [] Typage

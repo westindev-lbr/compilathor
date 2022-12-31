@@ -20,14 +20,23 @@ rule token = parse
 | "var"           { Lvar }
 | "+"             { Ladd }
 | "*"             { Lmul }
+| "-"             { Lsub }
+| "/"             { Ldiv }
+| "=="            { Lequal }
+| "/=="           { Lnotequal }
+| ">"             { Lbigger }
+| "<"             { Lsmaller }
+| "&&"            { Land }
+| "||"            { Lor }
 | "("             { Llpar }
 | ")"             { Lrpar }
 | ","             { Lcomma }
-| "{"             { Llbracket }
-| "}"             { Lrbracket }
+| "{"             { Llbrace }
+| "}"             { Lrbrace }
+| "if"            { Lif }
+| "else"          { Lelse }
 | "function"      { Lfunc }
 | "return"        { Lreturn }
-| "print"         { Lprint }
 | num+ as n       { Lint (int_of_string n) }
 | ident as id     { Lident (id)}
 | _ as c          { raise (Error c) }
